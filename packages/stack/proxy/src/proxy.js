@@ -3,7 +3,7 @@ import express from 'express';
 import expressWs from 'express-ws';
 import cors from 'cors';
 import { isDebug } from 'embark-utils';
-const Web3RequestManager = require('web3-core-requestmanager');
+import Web3RequestManager from 'web3-core-requestmanager';
 
 const ACTION_TIMEOUT = isDebug() ? 30000 : 10000;
 
@@ -40,7 +40,7 @@ export class Proxy {
   }
 
   _createWeb3RequestManager(provider) {
-    const manager =  new Web3RequestManager.Manager(provider);
+    const manager = new Web3RequestManager.Manager(provider);
     // Up max listener because the default 10 limit is too low for all the events the proxy handles
     // Warning mostly appeared in tests. The warning is also only with the Ganache provider
     // eslint-disable-next-line no-unused-expressions
@@ -54,6 +54,7 @@ export class Proxy {
       // Using net_version instead of eth_accounts, because eth_accounts can fail if EIP1102 is not approved first
       await reqMgr.send({ method: 'net_version' });
     } catch (e) {
+      console.log(e);
       this.logger.debug(e);
       throw new Error(__(`Unable to connect to the blockchain endpoint`));
     }
