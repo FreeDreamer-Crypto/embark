@@ -1,4 +1,5 @@
 import { Embark } from "embark-core";
+import EmbarkSmartContracts from './embark_smartContracts';
 import EthAccounts from "./eth_accounts";
 import EthSendTransaction from "./eth_sendTransaction";
 import EthSignData from "./eth_signData";
@@ -21,7 +22,8 @@ export default class RpcInterceptors {
         EthSignTypedData,
         EthSignData,
         EthSubscribe,
-        EthUnsubscribe
+        EthUnsubscribe,
+        EmbarkSmartContracts
       ].map((RpcMod) => {
         const interceptor = new RpcMod(this.embark);
         return interceptor.registerRpcInterceptors();
