@@ -60,8 +60,8 @@ export default class EthSignTypedData extends RpcInterceptor {
       // - eth_signTypedData_v3
       // - eth_signTypedData_v4
       // - personal_signTypedData (parity)
-      this.embark.events.request2("rpc:request:interceptor:register", 'signTypedData', this.ethSignTypedDataRequest.bind(this)),
-      this.embark.events.request2("rpc:response:interceptor:register", 'signTypedData', this.ethSignTypedDataResponse.bind(this))
+      this.embark.events.request2("rpc:request:interceptor:register", /.*signTypedData.*/, this.ethSignTypedDataRequest.bind(this)),
+      this.embark.events.request2("rpc:response:interceptor:register", /.*signTypedData.*/, this.ethSignTypedDataResponse.bind(this))
     ]);
   }
 

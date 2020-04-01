@@ -158,12 +158,9 @@ export default class RpcManager {
     registrations: Array<RpcRequestRegistration<T> | RpcResponseRegistration<T, R>>,
     params: ProxyRequestParams<T> | ProxyResponseParams<T, R>
   ): Promise<ProxyRequestParams<T> | ProxyResponseParams<T, R>> {
-    const web3 = await this.web3;
-    const accounts = await this.accounts;
-    const nodeAccounts = await this.nodeAccounts;
     const { method } = params.request;
     const registrationsToRun = registrations
-      .filter(registration => this.shouldModify(registration.filter, method))
+      .filter(registration => this.shouldIntercept(registration.filter, method))
       .sort((a, b) => this.sortByPriority(a.options.priority, b.options.priority));
 
     for (const registration of registrationsToRun) {
@@ -172,7 +169,7 @@ export default class RpcManager {
     return params;
   }
 
-  private shouldModify(filter: string | string[] | RegExp, method: string) {
+  private shouldIntercept(filter: string | string[] | RegExp, method: string) {
     let applyModification = false;
     if (filter instanceof RegExp) {
       applyModification = filter.test(method);

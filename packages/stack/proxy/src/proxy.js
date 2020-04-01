@@ -54,7 +54,6 @@ export class Proxy {
       // Using net_version instead of eth_accounts, because eth_accounts can fail if EIP1102 is not approved first
       await reqMgr.send({ method: 'net_version' });
     } catch (e) {
-      console.log(e);
       this.logger.debug(e);
       throw new Error(__(`Unable to connect to the blockchain endpoint`));
     }

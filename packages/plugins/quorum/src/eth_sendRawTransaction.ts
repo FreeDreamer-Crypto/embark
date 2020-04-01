@@ -67,18 +67,19 @@ export default class EthSendRawTransaction {
 
   private get rawTransactionManager() {
     return (async () => {
-      if (!this._rawTransactionManager) {
-        // RawTransactionManager doesn't support websockets, and uses the
-        // currentProvider.host URI to communicate with the node over HTTP. Therefore, we can
-        // populate currentProvider.host with our proxy HTTP endpoint, without affecting
-        // web3's websocket connection.
-        // @ts-ignore
-        web3.eth.currentProvider.host = await this.embark.events.request2("proxy:endpoint:http:get");
-        const web3 = await this.web3;
-        this._rawTransactionManager = quorumjs.RawTransactionManager(web3, {
-          privateUrl: this.embark.config.blockchainConfig.clientConfig?.tesseraPrivateUrl ?? TESSERA_PRIVATE_URL_DEFAULT
-        });
+      if (this._rawTransactionManager) {
+        return this._rawTransactionManager;
       }
+      // RawTransactionManager doesn't support websockets, and uses the
+      // currentProvider.host URI to communicate with the node over HTTP. Therefore, we can
+      // populate currentProvider.host with our proxy HTTP endpoint, without affecting
+      // web3's websocket connection.
+      // @ts-ignore
+      web3.eth.currentProvider.host = await this.embark.events.request2("proxy:endpoint:http:get");
+      const web3 = await this.web3;
+      this._rawTransactionManager = quorumjs.RawTransactionManager(web3, {
+        privateUrl: this.embark.config.blockchainConfig.clientConfig?.tesseraPrivateUrl ?? TESSERA_PRIVATE_URL_DEFAULT
+      });
       return this._rawTransactionManager;
     })();
   }

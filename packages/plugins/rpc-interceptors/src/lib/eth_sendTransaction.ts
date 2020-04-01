@@ -107,26 +107,28 @@ export default class EthSendTransaction extends RpcInterceptor {
     }
     // Check if we have that account in our wallet
     const account = accounts.find((acc) => Web3.utils.toChecksumAddress(acc.address) === Web3.utils.toChecksumAddress(params.request.params[0].from));
-    if (account && account.privateKey) {
-      return new Promise((resolve, reject) => {
 
-        return this.signTransactionQueue.push({ payload: params.request.params[0], account, web3 }, (err: any, newPayload: any) => {
+    if (!account?.privateKey) {
+      return params;
+    }
+
+    return new Promise((resolve, reject) => {
+
+      return this.signTransactionQueue.push({ payload: params.request.params[0], account, web3 }, (err: any, newPayload: any) => {
+        if (err) {
+          return reject(err);
+        }
+        params.originalRequest = cloneDeep(params.request);
+        params.request.method = blockchainConstants.transactionMethods.eth_sendRawTransaction;
+        params.request.params = [newPayload];
+        // allow for any mods to eth_sendRawTransaction
+        this.plugins.runActionsForEvent('blockchain:proxy:request', params, (error, requestParams) => {
           if (err) {
             return reject(err);
           }
-          params.originalRequest = cloneDeep(params.request);
-          params.request.method = blockchainConstants.transactionMethods.eth_sendRawTransaction;
-          params.request.params = [newPayload];
-          // allow for any mods to eth_sendRawTransaction
-          this.plugins.runActionsForEvent('blockchain:proxy:request', params, (error, requestParams) => {
-            if (err) {
-              return reject(err);
-            }
-            resolve(requestParams);
-          });
+          resolve(requestParams);
         });
       });
-    }
-    return params;
+    });
   }
 }
