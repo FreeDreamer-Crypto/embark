@@ -3,18 +3,16 @@ import RpcInterceptor from "./rpcInterceptor";
 import { ProxyRequestParams, ProxyResponseParams } from "embark-proxy";
 
 export default class EthSubscribe extends RpcInterceptor {
+
   constructor(embark: Embark) {
     super(embark);
   }
 
-  public async registerRpcInterceptors() {
-    return Promise.all([
-      this.embark.events.request2("rpc:request:interceptor:register", 'eth_subscribe', this.ethSubscribeRequest.bind(this)),
-      this.embark.events.request2("rpc:response:interceptor:register", 'eth_subscribe', this.ethSubscribeResponse.bind(this))
-    ]);
+  getFilter() {
+    return 'eth_subscribe';
   }
 
-  private async ethSubscribeRequest(params: ProxyRequestParams<string>) {
+  async interceptRequest(params: ProxyRequestParams<string>) {
     // check for websockets
     if (params.isWs) {
       // indicate that we do not want this call to go to the node
@@ -22,7 +20,7 @@ export default class EthSubscribe extends RpcInterceptor {
     }
     return params;
   }
-  private async ethSubscribeResponse(params: ProxyResponseParams<string, any>) {
+  async interceptResponse(params: ProxyResponseParams<string, any>) {
 
     const { isWs, transport, request, response } = params;
 

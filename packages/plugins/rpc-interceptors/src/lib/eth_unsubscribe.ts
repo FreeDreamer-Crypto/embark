@@ -8,14 +8,11 @@ export default class EthUnsubscribe extends RpcInterceptor {
     super(embark);
   }
 
-  public async registerRpcInterceptors() {
-    return Promise.all([
-      this.embark.events.request2("rpc:request:interceptor:register", 'eth_unsubscribe', this.ethUnsubscribeRequest.bind(this)),
-      this.embark.events.request2("rpc:response:interceptor:register", 'eth_unsubscribe', this.ethUnsubscribeResponse.bind(this))
-    ]);
+  getFilter() {
+    return 'eth_unsubscribe';
   }
 
-  private async ethUnsubscribeRequest(params: ProxyRequestParams<string>) {
+  async interceptRequest(params: ProxyRequestParams<string>) {
     // check for websockets
     if (params.isWs) {
       // indicate that we do not want this call to go to the node
@@ -23,7 +20,8 @@ export default class EthUnsubscribe extends RpcInterceptor {
     }
     return params;
   }
-  private async ethUnsubscribeResponse(params: ProxyResponseParams<string, any>) {
+
+  async interceptResponse(params: ProxyResponseParams<string, any>) {
 
     const { isWs, request, response } = params;
 

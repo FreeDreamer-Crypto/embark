@@ -1,7 +1,7 @@
 import { Embark } from "embark-core";
 const { blockchain: blockchainConstants } = require("embark-core/constants");
 import RpcInterceptor from "./rpcInterceptor";
-import { ProxyResponseParams } from "embark-proxy";
+import { ProxyRequestParams, ProxyResponseParams } from "embark-proxy";
 
 export default class PersonalNewAccount extends RpcInterceptor {
 
@@ -9,11 +9,15 @@ export default class PersonalNewAccount extends RpcInterceptor {
     super(embark);
   }
 
-  public async registerRpcInterceptors() {
-    return this.embark.events.request2("rpc:response:interceptor:register", blockchainConstants.transactionMethods.personal_newAccount, this.personalNewAccountResponse.bind(this));
+  getFilter() {
+    return blockchainConstants.transactionMethods.personal_newAccount;
   }
 
-  private async personalNewAccountResponse(params: ProxyResponseParams<string, string>) {
+  async interceptRequest(params: ProxyRequestParams<string>) {
+    return params;
+  }
+
+  async interceptResponse(params: ProxyResponseParams<string, string>) {
     // emit event so tx modifiers can refresh accounts
     await this.events.request2("rpc:accounts:reset");
     return params;

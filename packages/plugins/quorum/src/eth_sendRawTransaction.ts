@@ -57,12 +57,8 @@ export default class EthSendRawTransaction {
     })();
   }
 
-
-  public async registerRpcInterceptors() {
-    return Promise.all([
-      this.embark.events.request2("rpc:request:interceptor:register", blockchainConstants.transactionMethods.eth_sendRawTransaction, this.ethSendRawTransactionRequest.bind(this)),
-      this.embark.events.request2("rpc:response:interceptor:register", blockchainConstants.transactionMethods.eth_sendRawTransaction, this.ethSendRawTransactionResponse.bind(this))
-    ]);
+  getFilter() {
+    return blockchainConstants.transactionMethods.eth_sendRawTransaction;
   }
 
   private get rawTransactionManager() {
@@ -117,7 +113,7 @@ export default class EthSendRawTransaction {
     return value?.indexOf('0x') === 0 ? value.substring(2) : value;
   }
 
-  private async ethSendRawTransactionRequest(params: ProxyRequestParams<string>) {
+  async interceptRequest(params: ProxyRequestParams<string>) {
     const shouldHandle = await this.shouldHandle(params);
     if (!shouldHandle) {
       return params;
@@ -128,7 +124,7 @@ export default class EthSendRawTransaction {
     return params;
   }
 
-  private async ethSendRawTransactionResponse(params: ProxyResponseParams<string, any>) {
+  async interceptResponse(params: ProxyResponseParams<string, any>) {
     const shouldHandle = await this.shouldHandle(params);
     if (!shouldHandle) {
       return params;

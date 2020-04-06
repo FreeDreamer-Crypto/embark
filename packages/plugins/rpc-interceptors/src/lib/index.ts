@@ -13,21 +13,28 @@ export default class RpcInterceptors {
     this.init();
   }
 
-  private async init() {
-    return await Promise.all(
-      [
-        PersonalNewAccount,
-        EthAccounts,
-        EthSendTransaction,
-        EthSignTypedData,
-        EthSignData,
-        EthSubscribe,
-        EthUnsubscribe,
-        EmbarkSmartContracts
-      ].map((RpcMod) => {
-        const interceptor = new RpcMod(this.embark);
-        return interceptor.registerRpcInterceptors();
-      })
-    );
+  private init() {
+    [
+      PersonalNewAccount,
+      EthAccounts,
+      EthSendTransaction,
+      EthSignTypedData,
+      EthSignData,
+      EthSubscribe,
+      EthUnsubscribe,
+      EmbarkSmartContracts
+    ].map((RpcMod) => {
+      const interceptor = new RpcMod(this.embark);
+      this.embark.events.request(
+        'rpc:request:interceptor:register',
+        interceptor.getFilter(),
+        (params, cb) => interceptor.interceptRequest(params)
+      );
+      this.embark.events.request(
+        'rpc:response:interceptor:register',
+        interceptor.getFilter(),
+        params => interceptor.interceptResponse(params)
+      );
+    });
   }
 }
